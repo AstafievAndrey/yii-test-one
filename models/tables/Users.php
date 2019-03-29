@@ -25,21 +25,8 @@ class Users extends \yii\db\ActiveRecord
     
     public function save($runValidation = true, $attributeNames = null)
     {
-        $this->password = md5(md5($this->password));
+        $this->password = md5($this->password);
         parent::save($runValidation, $attributeNames);
-    }
-
-    public function getRoles() {
-        return $this->hasMany(UsersRoles::className(), ['user_id' => 'id']);
-    }
-
-    public function hasRoles(array $roles) {
-        foreach($this->roles as $key => $value){
-            if(array_search($value->role->name, $roles)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     /**
