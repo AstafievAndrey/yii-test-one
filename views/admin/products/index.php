@@ -6,7 +6,8 @@ use yii\grid\GridView;
 /* @var $this yii\web\View */
 /* @var $dataProvider yii\data\ActiveDataProvider */
 
-$this->title = 'Products';
+$this->title = 'Продукты';
+$this->params['breadcrumbs'][] = ['label' => 'Панель администратора', 'url' => ['admin/main']];
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="products-index">
@@ -14,7 +15,7 @@ $this->params['breadcrumbs'][] = $this->title;
     <h1><?= Html::encode($this->title) ?></h1>
 
     <p>
-        <?= Html::a('Create Products', ['create'], ['class' => 'btn btn-success']) ?>
+        <?= Html::a('Добавить продукт', ['create'], ['class' => 'btn btn-success']) ?>
     </p>
 
 

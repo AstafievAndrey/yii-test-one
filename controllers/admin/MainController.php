@@ -40,7 +40,6 @@ class MainController extends Controller
      */
     public function actionIndex()
     {
-        $user = Users::findOne(1);
-        return $this->render('index', ['user'=>$user]);
+        return $this->render('index');
     }
 }
