@@ -15,6 +15,7 @@ class m190329_134816_files extends Migration
         $this->createTable('files', [
             'id' => $this->primaryKey(),
             'name' => $this->text()->notNull(),
+            'upload_name' => $this->text()->notNull(),
             'type' => $this->text()->notNull(),
             'size' => $this->integer()->notNull(),
             'blob' => $this->binary()->notNull(),
