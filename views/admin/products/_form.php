@@ -20,14 +20,48 @@ use app\models\tables\Categories;
     <?= $form->field($model, 'price')->textInput() ?>
     
     <?php
+        $optionsCategList = [];
+        foreach($model->productsCategories as $item) {
+            $optionsCategList[$item->category_id] = ['selected' => 'selected'];
+        }
         echo $form->field($categories, 'id')->dropdownList(
             Categories::find()->select(['name', 'id'])->indexBy('id')->column(),
-            ['multiple' => true, 'required' => true]
+            [
+                'multiple' => true, 'required' => true,
+                'options' => $optionsCategList,
+            ]
         );
     ?>
 
-    <?= $form->field($uploadFiles, 'files[]')->fileInput(
-        ['multiple' => true, 'accept' => 'image/*']) ?>
+    <?php if ($uploadFiles !== false) { ?>
+        <?= $form->field($uploadFiles, 'files[]')->fileInput(
+            ['multiple' => true, 'accept' => 'image/*']) ?>
+    <?php }?>
+
+    <?php if (count($model->productsFiles) > 0) { ?>
+        <h3>Изображения</h3>
+        <div class="row">
+        <?php
+            foreach($model->productsFiles as $item) {
+                echo 
+                '<div class="col-sm-3">'
+                    . Html::a('удалить', 
+                        ['delete-file', 'id'=> $model->id, 'file' => $item->file->id],
+                        [
+                            'class' => 'btn btn-danger', 
+                            'style' => 'position: absolute',
+                            'data' => [
+                                'confirm' => 'Вы уверены что хотите удалить?',
+                                'method' => 'post',
+                            ],
+                        ]
+                    )
+                    .'<img class="img-thumbnail" src="data:'.$item->file->type.';base64,'.base64_encode($item->file->blob).'"/>'
+                .'</div>';
+            }
+        ?>
+        </div>
+    <?php }?>
 
     <div class="form-group">
         <?= Html::submitButton('Save', ['class' => 'btn btn-success']) ?>

@@ -7,12 +7,26 @@ use yii\web\UploadedFile;
 
 class UploadFiles extends Model
 {
+    private $skipOnEmpty;
+    private $maxFiles;
     public $files;
+
+    public function __construct($maxFiles = 4, $skipOnEmpty = false) {
+        parent::__construct();
+        $this->skipOnEmpty = $skipOnEmpty;
+        $this->maxFiles = $maxFiles;
+    }
 
     public function rules()
     {
         return [
-            [['files'], 'file', 'skipOnEmpty' => false, 'extensions' => 'png, jpg', 'maxFiles' => 5],
+            [
+                ['files'],
+                'file',
+                'skipOnEmpty' => $this->skipOnEmpty,
+                'extensions' => 'png, jpg',
+                'maxFiles' => $this->maxFiles
+            ],
         ];
     }
 

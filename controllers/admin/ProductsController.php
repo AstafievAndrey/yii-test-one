@@ -22,6 +22,7 @@ use app\models\tables\ProductsFiles;
  */
 class ProductsController extends Controller
 {
+    const MAX_FILES = 4;
     /**
      * {@inheritdoc}
      */
@@ -33,7 +34,7 @@ class ProductsController extends Controller
                 'rules' => [
                     [
                         'allow' => true,
-                        'actions' => ['index', 'create', 'view', 'update', 'delete'],
+                        'actions' => ['index', 'create', 'view', 'update', 'delete', 'delete-file'],
                         'roles' => ['admin', 'manager'],
                     ]
                 ],
@@ -90,32 +91,8 @@ class ProductsController extends Controller
         if ($model->load($post)) {
             $model->save();
             $uploadFiles->files = UploadedFile::getInstances($uploadFiles, 'files');
-            $categories = Categories::findAll($post["Categories"]["id"]);
-            foreach($categories as $category) {
-                $productsCategories = new ProductsCategories();
-                $productsCategories->product_id = $model->id;
-                $productsCategories->category_id = $category->id;
-                $productsCategories->save();
-            }
-            $upload = $uploadFiles->upload();
-            if ($upload !== false) {
-                foreach($uploadFiles->files as $value) {
-                    $file =  new Files();
-                    $file->name = $value->name;
-                    $file->type = $value->type;
-                    $file->size = $value->size;
-                    $file->upload_name = $upload.'-'.$value->name;
-                    $file->blob = file_get_contents(
-                        $uploadFiles->getDir().$upload.'-'.$value->name
-                    );
-                    $file->save();
-                    $productsFiles = new ProductsFiles();
-                    $productsFiles->file_id = $file->id;
-                    $productsFiles->product_id = $model->id;
-                    $productsFiles->save();
-                }
-            }
-            // return ;
+            $this->saveCategories($model, $post["Categories"]["id"]);
+            $this->saveFiles($model, $uploadFiles);
             return $this->redirect(['view', 'id' => $model->id]);
         }
 
@@ -136,14 +113,67 @@ class ProductsController extends Controller
     public function actionUpdate($id)
     {
         $model = $this->findModel($id);
+        $categories = new Categories();
+        $countFiles = count($model->productsFiles);
+        $post = Yii::$app->request->post();
+        if($countFiles) {
+            $uploadFiles = $countFiles === self::MAX_FILES 
+                ? false : new UploadFiles(self::MAX_FILES - $countFiles, true);
+        } else {
+            $uploadFiles = new UploadFiles();
+        }
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+        if ($model->load($post) && $model->save()) {
+            ProductsCategories::deleteAll(['product_id' => $model->id]);
+            $this->saveCategories($model, $post["Categories"]["id"]);
+            if($uploadFiles !== false) {
+                $uploadFiles->files = UploadedFile::getInstances($uploadFiles, 'files');
+                $this->saveFiles($model, $uploadFiles);
+            }
             return $this->redirect(['view', 'id' => $model->id]);
+            return;
         }
 
         return $this->render('update', [
             'model' => $model,
+            'uploadFiles' => isset($uploadFiles) ? $uploadFiles : false,
+            'categories' => $categories,
         ]);
+    }
+
+    private function saveCategories(Products $product, array $categories) {
+        $newCategories = Categories::findAll($categories);
+        foreach($newCategories as $category) {
+            $productsCategories = new ProductsCategories();
+            $productsCategories->product_id = $product->id;
+            $productsCategories->category_id = $category->id;
+            $productsCategories->save();
+        }
+    }
+    
+    private function saveFiles(Products $product, UploadFiles $uploadedFile) {
+        if ($uploadedFile->validate()) {
+            foreach($uploadedFile->files as $value) {
+                $file =  new Files();
+                $file->name = $value->name;
+                $file->type = $value->type;
+                $file->size = $value->size;
+                $file->blob = file_get_contents(
+                    $value->tempName
+                );
+                $file->save();
+                $productsFiles = new ProductsFiles();
+                $productsFiles->file_id = $file->id;
+                $productsFiles->product_id = $product->id;
+                $productsFiles->save();
+            }
+        }
+    }
+
+    public function actionDeleteFile($id, $file)
+    {
+        Files::findOne($file)->delete();
+        return $this->redirect(['update', 'id' => $id]);
     }
 
     /**
@@ -155,8 +185,7 @@ class ProductsController extends Controller
      */
     public function actionDelete($id)
     {
-        $this->findModel($id)->delete();
-
+        // $this->findModel($id)->delete();
         return $this->redirect(['index']);
     }
 

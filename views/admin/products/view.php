@@ -2,6 +2,7 @@
 
 use yii\helpers\Html;
 use yii\widgets\DetailView;
+use yii\grid\GridView;
 
 /* @var $this yii\web\View */
 /* @var $model app\models\tables\Products */
@@ -21,7 +22,7 @@ $this->params['breadcrumbs'][] = $this->title;
         <?= Html::a('Удалить', ['delete', 'id' => $model->id], [
             'class' => 'btn btn-danger',
             'data' => [
-                'confirm' => 'Are you sure you want to delete this item?',
+                'confirm' => 'Вы уверены что хотите удалить?',
                 'method' => 'post',
             ],
         ]) ?>
@@ -36,5 +37,38 @@ $this->params['breadcrumbs'][] = $this->title;
             'price',
         ],
     ]) ?>
-
+    <?php if (count($model->productsCategories) > 0) { ?>
+        <h3>Категории</h3>
+        <table class="table table-striped">
+            <thead>
+                <th>ИД категории</th>
+                <th>Название</th>
+                <th>Описание</th>
+            </thead>
+            <tbody>
+            <?php 
+                foreach($model->productsCategories as $item) {
+                    echo '<tr>'
+                            .'<td>'.$item->category->id.'</td>'
+                            .'<td>'.$item->category->name.'</td>'
+                            .'<td>'.$item->category->description.'</td>'
+                        .'</tr>';
+                }
+            ?>
+            </tbody>
+        </table>
+    <?php }?>
+    <?php if (count($model->productsFiles) > 0) { ?>
+        <h3>Изображения</h3>
+        <div class="row">
+        <?php
+            foreach($model->productsFiles as $item) {
+                echo 
+                '<div class="col-sm-3">'
+                    .'<img class="img-thumbnail" src="data:'.$item->file->type.';base64,'.base64_encode($item->file->blob).'"/>'
+                .'</div>';
+            }
+        ?>
+        </div>
+    <?php }?>
 </div>
