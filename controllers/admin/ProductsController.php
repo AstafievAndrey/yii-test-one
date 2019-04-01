@@ -91,6 +91,7 @@ class ProductsController extends Controller
     {
         $dataProvider = new ActiveDataProvider([
             'query' => Products::find(),
+            'pagination' => array('pageSize' => 5),
         ]);
 
         return $this->render('index', [

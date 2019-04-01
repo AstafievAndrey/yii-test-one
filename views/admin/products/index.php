@@ -1,6 +1,7 @@
 <?php
 
 use yii\helpers\Html;
+use yii\helpers\StringHelper;
 use yii\grid\GridView;
 
 /* @var $this yii\web\View */
@@ -26,7 +27,12 @@ $this->params['breadcrumbs'][] = $this->title;
 
             'id',
             'name',
-            'description:ntext',
+            [
+                'attribute' => 'description',
+                'value' => function ($model) {
+                    return StringHelper::truncate($model->description, 100);
+                }
+            ],
             'price',
 
             ['class' => 'yii\grid\ActionColumn'],
