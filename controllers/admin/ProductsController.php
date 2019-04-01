@@ -7,6 +7,7 @@ use yii\data\ActiveDataProvider;
 use yii\web\Controller;
 use yii\web\UploadedFile;
 use yii\web\NotFoundHttpException;
+use yii\helpers\ArrayHelper;
 use yii\filters\VerbFilter;
 use yii\filters\AccessControl;
 
@@ -22,7 +23,41 @@ use app\models\tables\ProductsFiles;
  */
 class ProductsController extends Controller
 {
-    const MAX_FILES = 4;
+    const MAX_FILES = 5;
+
+    private function saveCategories(Products $product, array $categories) {
+        $newCategories = Categories::findAll($categories);
+        foreach($newCategories as $category) {
+            $productsCategories = new ProductsCategories();
+            $productsCategories->product_id = $product->id;
+            $productsCategories->category_id = $category->id;
+            $productsCategories->save();
+        }
+    }
+    
+    private function saveFiles(Products $product, UploadFiles $uploadedFile) {
+        if ($uploadedFile->validate()) {
+            foreach($uploadedFile->files as $value) {
+                $file =  new Files();
+                $file->name = $value->name;
+                $file->type = $value->type;
+                $file->size = $value->size;
+                $file->blob = file_get_contents(
+                    $value->tempName
+                );
+                $file->save();
+                $productsFiles = new ProductsFiles();
+                $productsFiles->file_id = $file->id;
+                $productsFiles->product_id = $product->id;
+                $productsFiles->save();
+            }
+        }
+    }
+
+    private function deleteFile($file_id) {
+        return Files::findOne($file_id)->delete();
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -141,38 +176,9 @@ class ProductsController extends Controller
         ]);
     }
 
-    private function saveCategories(Products $product, array $categories) {
-        $newCategories = Categories::findAll($categories);
-        foreach($newCategories as $category) {
-            $productsCategories = new ProductsCategories();
-            $productsCategories->product_id = $product->id;
-            $productsCategories->category_id = $category->id;
-            $productsCategories->save();
-        }
-    }
-    
-    private function saveFiles(Products $product, UploadFiles $uploadedFile) {
-        if ($uploadedFile->validate()) {
-            foreach($uploadedFile->files as $value) {
-                $file =  new Files();
-                $file->name = $value->name;
-                $file->type = $value->type;
-                $file->size = $value->size;
-                $file->blob = file_get_contents(
-                    $value->tempName
-                );
-                $file->save();
-                $productsFiles = new ProductsFiles();
-                $productsFiles->file_id = $file->id;
-                $productsFiles->product_id = $product->id;
-                $productsFiles->save();
-            }
-        }
-    }
-
     public function actionDeleteFile($id, $file)
     {
-        Files::findOne($file)->delete();
+        $this->deleteFile($file);
         return $this->redirect(['update', 'id' => $id]);
     }
 
@@ -185,7 +191,12 @@ class ProductsController extends Controller
      */
     public function actionDelete($id)
     {
-        // $this->findModel($id)->delete();
+        $model = $this->findModel($id);
+        $filesProducts = ArrayHelper::toArray($model->productsFiles);
+        foreach($model->productsFiles as $item) {
+            $this->deleteFile($item->file_id);
+        }
+        $model->delete();
         return $this->redirect(['index']);
     }
 
