@@ -23,10 +23,6 @@ class User extends \yii\base\BaseObject implements \yii\web\IdentityInterface
         return $user ? new static($user) : null;
     }
 
-    public function roles() {
-        return 1;
-    }
-
     /**
      * {@inheritdoc}
      */

@@ -48,11 +48,11 @@ class Users extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'id' => 'ID',
-            'username' => 'Username',
-            'password' => 'Password',
-            'authKey' => 'Auth Key',
-            'accessToken' => 'Access Token',
+            'id' => 'ИД пользователя',
+            'username' => 'Имя пользователя',
+            'password' => 'Пароль',
+            'authKey' => 'Ключ авторизации',
+            'accessToken' => 'Ключ доступа',
         ];
     }
 }
