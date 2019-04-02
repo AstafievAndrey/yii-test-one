@@ -48,6 +48,7 @@ $this->params['breadcrumbs'][] = $this->title;
             <span class="h3"><?=$product->name?></span>
             <span class="h4"><?=' - '. $product->price.' р.'?></span>
         </p>
+        <p class="h5">Описание товара:</p>
         <p>
             <?=nl2br($product->description)?>
         </p>
