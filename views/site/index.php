@@ -51,7 +51,11 @@ $this->title = 'Тестовое задание';
                                 <div class="caption">
                                     <h3><?=$product->name?></h3>
                                     <p>
-                                        <a href="#" class="btn btn-default" role="button">Просмотр</a>
+                                    <?= Html::a('Просмотр', ['view', 'id' => $product->id], 
+                                            [
+                                                'class' => 'btn btn-default',
+                                                'data' => ['method' => 'post'],
+                                        ])?>
                                     </p>
                                 </div>
                             </div>

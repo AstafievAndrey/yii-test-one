@@ -90,6 +90,18 @@ class SiteController extends Controller
     }
 
     /**
+     * View action.
+     *
+     * @return Response|string
+     */
+    public function actionView($id)
+    {
+        return $this->render('view', [
+            'product' => Products::findOne($id)
+        ]);
+    }
+
+    /**
      * Login action.
      *
      * @return Response|string

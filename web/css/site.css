@@ -3,6 +3,18 @@ body {
     height: 100%;
 }
 
+.ucfirct::first-letter {
+    text-transform: uppercase;
+}
+
+.carousel-indicators .active { 
+    background-color: #999;
+}
+
+.carousel-indicators li { 
+    background-color: #999;
+}
+
 .wrap {
     min-height: 100%;
     height: auto;
