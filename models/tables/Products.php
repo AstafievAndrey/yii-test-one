@@ -31,10 +31,10 @@ class Products extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['name', 'description', 'price'], 'required'],
+            [['name', 'description', 'price'], 'required', 'message' => '{attribute} не может быть пустым.'],
             [['description'], 'string'],
             [['price'], 'number'],
-            [['name'], 'string', 'max' => 255],
+            [['name'], 'string', 'max' => 255, 'message' => '{attribute} не может быть больше 255 символов.'],
         ];
     }
 
